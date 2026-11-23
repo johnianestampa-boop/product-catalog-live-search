@@ -20,6 +20,11 @@ useEffect(() => {
     setDebouncedSearch(searchText);
   }, 300);
 
+  useEffect(() => {
+  document.title = `CvSU Mini Store (${filteredProducts.length} results)`;
+}, [filteredProducts.length]);
+
+  document.title = `CvSU Mini Store (${filteredProducts.length} results)`;
   return () => clearTimeout(timer); // cleanup
 }, [searchText]);
 
