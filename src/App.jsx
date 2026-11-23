@@ -15,31 +15,26 @@ function App() {
   const [category, setCategory] = useState("All");
   const [sortOrder, setSortOrder] = useState("default");
 
-useEffect(() => {
-  const timer = setTimeout(() => {
-    setDebouncedSearch(searchText);
-  }, 300);
-
+  // Debounce effect: wait 300 ms after the user stops typing
   useEffect(() => {
-  document.title = `CvSU Mini Store (${filteredProducts.length} results)`;
-}, [filteredProducts.length]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchText);
+    }, 300);
 
-  document.title = `CvSU Mini Store (${filteredProducts.length} results)`;
-  return () => clearTimeout(timer); // cleanup
-}, [searchText]);
-
+    return () => clearTimeout(timer); // cleanup
+  }, [searchText]);
 
   const handleAddToCart = (title) => {
     setCartCount(cartCount + 1);
     setLastAdded(title);
   };
 
-const handleClear = () => {
-  setSearchText("");
-  setDebouncedSearch("");
-  setCategory("All");
-  setSortOrder("default");
-};
+  const handleClear = () => {
+    setSearchText("");
+    setDebouncedSearch("");
+    setCategory("All");
+    setSortOrder("default");
+  };
 
   // Derived list: calculated during rendering, not stored in state
   let filteredProducts = products
@@ -53,6 +48,11 @@ const handleClear = () => {
   } else if (sortOrder === "high-low") {
     filteredProducts = [...filteredProducts].sort((a, b) => b.price - a.price);
   }
+
+  // Title effect: must come AFTER filteredProducts is defined
+  useEffect(() => {
+    document.title = `CvSU Mini Store (${filteredProducts.length} results)`;
+  }, [filteredProducts.length]);
 
   return (
     <div className="app">
@@ -75,21 +75,31 @@ const handleClear = () => {
         onClear={handleClear}
       />
 
-      <div className="product-grid">
-        {filteredProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            title={product.title}
-            price={product.price}
-            category={product.category}
-            inStock={product.inStock}
-            onAddToCart={handleAddToCart}
-          >
-            {product.id === 1 && <span>New</span>}
-            {product.id === 5 && <span>Sale</span>}
-          </ProductCard>
-        ))}
-      </div>
+      <p className="result-count">
+        Showing {filteredProducts.length} of {products.length} products
+      </p>
+
+      {filteredProducts.length === 0 ? (
+        <p className="empty-state">
+          No products found. Try a different keyword or category.
+        </p>
+      ) : (
+        <div className="product-grid">
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              title={product.title}
+              price={product.price}
+              category={product.category}
+              inStock={product.inStock}
+              onAddToCart={handleAddToCart}
+            >
+              {product.id === 1 && <span>New</span>}
+              {product.id === 5 && <span>Sale</span>}
+            </ProductCard>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
